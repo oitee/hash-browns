@@ -1,67 +1,70 @@
 //direct addressing
 
-function insertPair(key, value, store){
-  let unicodeKey = convertToUnicode(key);
-  if(store[unicodeKey] === undefined){
-  store[unicodeKey] = value;
-  return value;
+class kvStore {
+  constructor() {
+    this.arr = [];
   }
-  throw "key already exists";
-}
-
-function deletePair(key, store){
-  let unicodeKey = convertToUnicode(key);
-  if(store[unicodeKey] !== undefined){
-    let value = store[unicodeKey];
-    store[unicodeKey] = undefined;
-    return value;  
+  insertPair(key, value) {
+    let unicodeKey = this.convertToUnicode(key);
+    if (this.arr[unicodeKey] === undefined) {
+      this.arr[unicodeKey] = value;
+      return value;
+    }
+    throw "key already exists";
   }
-  throw "key does not exist";
-}
 
-function lookUp(key, store){
-  let unicodeKey = convertToUnicode(key);
-  if(store[unicodeKey] !== undefined){
-    return store[unicodeKey];
+  deletePair(key) {
+    let unicodeKey = this.convertToUnicode(key);
+    if (this.arr[unicodeKey] !== undefined) {
+      let value = this.arr[unicodeKey];
+      this.arr[unicodeKey] = undefined;
+      return value;
+    }
+    throw "key does not exist";
   }
-  throw "key does not exist";
-}
 
-function update(key, newValue, store){
-  let unicodeKey = convertToUnicode(key);
-  if(store[unicodeKey] !== undefined){
-    let oldValue = store[unicodeKey];
-    store[unicodeKey] = newValue;
-    return oldValue;
+  lookUp(key) {
+    let unicodeKey = this.convertToUnicode(key);
+    if (this.arr[unicodeKey] !== undefined) {
+      return this.arr[unicodeKey];
+    }
+    throw "key does not exist";
   }
-  throw "key does not exist";
-}
 
-function convertToUnicode(key){
-  let unicodeValue = 0;
-  for (let i = 0; i < key.length; i++) {
-    unicodeValue = unicodeValue + key.charCodeAt(i);
+  update(key, newValue) {
+    let unicodeKey = this.convertToUnicode(key);
+    if (this.arr[unicodeKey] !== undefined) {
+      let oldValue = this.arr[unicodeKey];
+      this.arr[unicodeKey] = newValue;
+      return newValue;//Need not return anything
+    }
+    throw "key does not exist";
   }
-  return unicodeValue;
+
+  convertToUnicode(key) {
+    if (typeof key == "number") {
+      return key;
+    }
+    let unicodeValue = 0;
+    for (let i = 0; i < key.length; i++) {
+      unicodeValue = unicodeValue + key.charCodeAt(i);
+    }
+    return unicodeValue;
+  }
 }
-
-
-
-
-
-
 
 let firstName = "Bella";
-let phoneBook = [];
+let phoneBook = new kvStore();
 
-console.log(insertPair("Bella", "2441123", phoneBook));//2441123
-console.log(insertPair("Emergency", "100", phoneBook))//100
+phoneBook.insertPair("Akbar", "+91 12345");
+phoneBook.insertPair("Amar", "+91 45678");
+phoneBook.insertPair("Antony", "+91 98765");
+phoneBook.insertPair("Abir", "+91 11111");
+phoneBook.insertPair("Hospitals", "+91 101");
+phoneBook.insertPair("Sammer", "+91 99999");
 
-console.log(update("Bella", "+91 2441139", phoneBook));//2441123
-console.log(lookUp("Bella", phoneBook));//+91 2441139
-// console.log(lookUp("Emergency", phoneBook));//100
-// console.log(update("Bella", "+91 2441129", phoneBook));//+91 2441139
-console.log(deletePair("Emergency",phoneBook));//100
-
-console.log(phoneBook);
-console.log((phoneBook.length));
+phoneBook.deletePair("Akbar");
+console.log(phoneBook.arr);
+console.log(phoneBook.lookUp("Abir") === "+91 11111");
+console.log(phoneBook.update("Abir", "+91 22222") === "+91 22222");
+console.log(phoneBook.lookUp("Abir") === "+91 22222");
