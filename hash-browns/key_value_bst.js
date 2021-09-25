@@ -1,48 +1,39 @@
-class kvStore{
-  constructor(){
+class BinaryTree {
+  constructor(key) {
+    this.key = key;
+    this.data = undefined;
+    this.left = null;
+    this.right = null;
+  }
+}
+
+class KVStore {
+  constructor() {
     this.root;
   }
-  createBinaryTree(key) {//consider making this a separate class
-    let newNode = {};
-    newNode.key = key;
-    newNode.data = undefined;
-    newNode.left = null;
-    newNode.right = null;
-    return newNode;
-  }
   insertPair(key, value) {
-    //let unicodeKey;
-    // if (typeof key != "number") {
-      let unicodeKey = this.convertToUnicode(key);
-    // } else {
-    //   unicodeKey = key;
-    // }
+    let unicodeKey = this.convertToUnicode(key);
     if (this.root == undefined) {
-      this.root = this.createBinaryTree(unicodeKey);
+      this.root = new BinaryTree(unicodeKey);
       this.root.data = value;
       return value;
     }
     if (this.isPresent(unicodeKey)) {
       throw `key already present: ${key}`;
     }
-    let newNode = this.searchAndInsert(unicodeKey, true);
+    let newNode = this.insert(unicodeKey);
     newNode.data = value;
     return value;
   }
   deletePair(key) {
-    // let unicodeKey;
-    // if (typeof key != "number") {
-      let unicodeKey = this.convertToUnicode(key);
-    // } else {
-    //   unicodeKey = key;
-    // }
+    let unicodeKey = this.convertToUnicode(key);
     if (this.isPresent(unicodeKey)) {
-      let targetNode = this.searchAndInsert(unicodeKey, false);
+      let targetNode = this.findNode(unicodeKey);
       let deletedValue = targetNode.data;
       let parentNode = this.findParent(unicodeKey);
       //If targetNode has one or no children,
       //to delete it, the pointer of its parent needs to be changed
-  
+
       if (targetNode.left == null || targetNode.right == null) {
         //When the target node is the root node, having one or no children
         if (targetNode.key === this.root.key) {
@@ -53,24 +44,23 @@ class kvStore{
           if (targetNode.left != null) {
             this.root = this.root.left;
             return deletedValue;
-            
           }
           this.root = this.root.right;
           return deletedValue;
         }
         //if the target node has a parent node, and has one or no children:
-  
+
         //First, finding whether the target node is a left child or a right child
         let parentDirection;
         if (parentNode.left == null) {
           // if (parentNode.left.key === unicodeKey) {
-            parentDirection = "right";
+          parentDirection = "right";
           // }
         } else {
           // if (parentNode.right !== null) {
           //   if (parentNode.right.key === unicodeKey) {
-              parentDirection = "left";
-            // }
+          parentDirection = "left";
+          // }
           // }
         }
         //Then, replacing the relevant pointer of the parent node to the child of the target node or to null
@@ -79,13 +69,13 @@ class kvStore{
           return deletedValue;
         }
         if (targetNode.left == null) {
-          parentNode[parentDirection].key = targetNode.right;
+          parentNode[parentDirection] = targetNode.right;
           return deletedValue;
         }
         parentNode[parentDirection] = targetNode.left;
         return deletedValue;
       }
-  
+
       //If the target node has both children, its immediate successor should replace it
       //Immediate successor = left most child of the right child of the target node
       let successorNode = this.findLeftMost(targetNode.right);
@@ -98,14 +88,9 @@ class kvStore{
   }
 
   update(key, newValue) {
-    // let unicodeKey;
-    // if (typeof key != "number") {
-      let unicodeKey = this.convertToUnicode(key);
-    // } else {
-    //   unicodeKey = key;
-    // }
+    let unicodeKey = this.convertToUnicode(key);
     if (this.isPresent(unicodeKey)) {
-      let targetNode = this.searchAndInsert(unicodeKey, false);
+      let targetNode = this.findNode(unicodeKey);
       targetNode.data = newValue;
       return newValue;
     }
@@ -114,13 +99,13 @@ class kvStore{
   lookUp(key) {
     let unicodeKey = this.convertToUnicode(key);
     if (this.isPresent(unicodeKey)) {
-      let targetNode = this.searchAndInsert(unicodeKey, false);
+      let targetNode = this.findNode(unicodeKey);
       return targetNode.data;
     }
     throw `key not present: ${key}`;
   }
   convertToUnicode(key) {
-    if(typeof key === "number"){
+    if (typeof key === "number") {
       return key;
     }
     let unicodeValue = 0;
@@ -143,32 +128,41 @@ class kvStore{
     }
     return false;
   }
-  searchAndInsert(key, insert, node = this.root) {
+  findNode(key, node = this.root) {
     if (node.key === key) {
       return node;
     }
     if (key < node.key) {
       if (node.left == null) {
-        if (insert) {
-          let newNode = this.createBinaryTree(key);
-          node.left = newNode;
-          return newNode;
-        } else {
-          throw `key not present: ${key}`;
-        }
-      }
-      return this.searchAndInsert(key, insert, node.left);
-    }
-    if (node.right == null) {
-      if (insert) {
-        let newNode = this.createBinaryTree(key);
-        node.right = newNode;
-        return newNode;
-      } else {
         throw `key not present: ${key}`;
       }
+      return this.findNode(key, node.left);
     }
-    return this.searchAndInsert(key, insert, node.right);
+    if (node.right == null) {
+      throw `key not present: ${key}`;
+    }
+
+    return this.findNode(key, node.right);
+  }
+
+  insert(key, node = this.root) {
+    if (node.key === key) {
+      throw `key already present: ${key}`;
+    }
+    if (key < node.key) {
+      if (node.left == null) {
+        let newNode = new BinaryTree(key);
+        node.left = newNode;
+        return newNode;
+      }
+      return this.insert(key, node.left);
+    }
+    if (node.right == null) {
+      let newNode = new BinaryTree(key);
+      node.right = newNode;
+      return newNode;
+    }
+    return this.insert(key, node.right);
   }
   findParent(key) {
     let node = this.root;
@@ -195,7 +189,7 @@ class kvStore{
     }
     throw `key not present: ${key}`;
   }
-  
+
   findLeftMost(node) {
     if (node.left == null) {
       return node;
@@ -204,43 +198,7 @@ class kvStore{
   }
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-let phoneBook = new kvStore();
-
-// phoneBook = insertPair("Bella", "2441139", phoneBook);
-
-// phoneBook = insertPair("Emergency", "100", phoneBook);
-
-// let BellaPhone = lookUp("Bella", phoneBook);
-// console.log(`BellaPhone (after insertion): ${BellaPhone}`);
-
-// update("Bella", "+91 2441139", phoneBook);
-// BellaPhone = lookUp("Bella", phoneBook);
-// console.log(`BellaPhone (after updation): ${BellaPhone}`);
-
-// phoneBook = deletePair("Bella", phoneBook);
-
-// console.log(`lookUp: Emergency ${lookUp("Emergency", phoneBook)}`);
-// //console.log(`lookUp Bella (after deletion): ${lookUp("Bella", phoneBook)}`);
-// console.log(phoneBook);
+let phoneBook = new KVStore();
 
 phoneBook.insertPair("Akbar", "+91 12345");
 phoneBook.insertPair("Amar", "+91 45678");
@@ -248,11 +206,8 @@ phoneBook.insertPair("Antony", "+91 98765");
 phoneBook.insertPair("Abir", "+91 11111");
 phoneBook.insertPair("Hospitals", "+91 101");
 phoneBook.insertPair("Sammer", "+91 99999");
-
 phoneBook.deletePair("Akbar", phoneBook);
-console.log(phoneBook.root);
-console.log(phoneBook.lookUp("Abir"));
+console.log(phoneBook.lookUp("Abir") === "+91 11111");
 phoneBook.update("Abir", "+91 22222");
-console.log(phoneBook.lookUp("Abir"));
-
-
+console.log(phoneBook.lookUp("Abir") === "+91 22222");
+console.log(phoneBook.insertPair("Abir", "1234"));
