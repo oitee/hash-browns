@@ -44,7 +44,7 @@ class HashTable {
   hashFn(key) {
     return key % this.size;
   }
-  insertPair(key, value) {
+  insert(key, value) {
     if (this.isNumber(key)) {
       let hashValue = this.hashFn(key);
       if (this.arr[hashValue] === null) {
@@ -60,7 +60,7 @@ class HashTable {
     }
     throw `Key is not a positive natural number: ${key}`;
   }
-  deletePair(key) {
+  delete(key) {
     if (this.isNumber(key)) {
       let hashVal = this.hashFn(key);
       if (this.arr[hashVal] === null) {
@@ -116,19 +116,19 @@ class HashTable {
 
 function testHashTable() {
   let newStore = new HashTable(10);
-  newStore.insertPair(1, "One");
+  newStore.insert(1, "One");
   try {
-    newStore.insertPair(1, "One");
+    newStore.insert(1, "One");
     console.log(false);
   } catch (e) {
     console.log(true);
   }
 
-  newStore.insertPair(202, "Two");
-  newStore.insertPair(303, "Three");
-  newStore.insertPair(404, "Four");
+  newStore.insert(202, "Two");
+  newStore.insert(303, "Three");
+  newStore.insert(404, "Four");
   console.log(newStore.lookUp(404) === "Four");
-  newStore.deletePair(303);
+  newStore.delete(303);
   try {
     newStore.lookUp(303);
     console.log(false);
@@ -136,17 +136,17 @@ function testHashTable() {
     console.log(true);
   }
   try {
-    console.log(newStore.deletePair(303));
+    console.log(newStore.delete(303));
     console.log(false);
   } catch (e) {
     console.log(true);
   }
   newStore.update(404, "Four O Four");
   console.log(newStore.lookUp(404) === "Four O Four");
-  newStore.insertPair(504, "Five O Four");
+  newStore.insert(504, "Five O Four");
   console.log(newStore.lookUp(504) === "Five O Four");
-  newStore.insertPair(604, "Six O Four");
-  newStore.deletePair(504);
+  newStore.insert(604, "Six O Four");
+  newStore.delete(504);
   console.log(newStore.lookUp(604) === "Six O Four");
   console.log(newStore.lookUp(404) === "Four O Four");
   try {
@@ -156,8 +156,5 @@ function testHashTable() {
     console.log(true);
   }
 }
-
-
-
 
 testHashTable();
