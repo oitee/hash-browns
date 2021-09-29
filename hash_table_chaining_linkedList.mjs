@@ -1,5 +1,5 @@
 export class Node {
-  constructor(key, value = undefined) {
+  constructor(key, value) {
     this.key = key;
     this.value = value;
     this.next = null;
@@ -34,6 +34,12 @@ class HashTable {
   constructor(m) {
     this.arr = [];
     this.size = m;
+    this.addDefaultValues();
+  }
+  addDefaultValues(){
+    for(let i = 0; i < this.size; i++){
+      this.arr[i] = null;
+    }
   }
   hashFn(key) {
     return key % this.size;
@@ -41,7 +47,7 @@ class HashTable {
   insertPair(key, value) {
     if (this.isNumber(key)) {
       let hashValue = this.hashFn(key);
-      if (this.arr[hashValue] === undefined) {
+      if (this.arr[hashValue] === null) {
         this.arr[hashValue] = new Node(key, value);
         return value;
       }
@@ -57,7 +63,7 @@ class HashTable {
   deletePair(key) {
     if (this.isNumber(key)) {
       let hashVal = this.hashFn(key);
-      if (this.arr[hashVal] === undefined) {
+      if (this.arr[hashVal] === null) {
         throw `Key not present as the hash bucket is empty`;
       }
       let hashBucket = this.arr[hashVal];
@@ -66,13 +72,7 @@ class HashTable {
         throw `Key is not present in the hash bucket: ${key}`;
       }
       let deletedVal = targetNode.value;
-      let deletedHead = hashBucket.delete(key);
-      if(deletedHead === null){
-        this.arr[hashVal] = undefined;
-      }
-      else{
-        this.arr[hashVal] = deletedHead;
-      }
+      this.arr[hashVal] = hashBucket.delete(key);
       return deletedVal;
     }
     throw `Key is not a positive natural number: {key}`;
@@ -80,7 +80,7 @@ class HashTable {
   update(key, newVal) {
     if (this.isNumber(key)) {
       let hashVal = this.hashFn(key);
-      if (this.arr[hashVal] === undefined) {
+      if (this.arr[hashVal] === null) {
         throw `Key is not present as the hash bucket is empty: ${key}`;
       }
       let hashBucket = this.arr[hashVal];
@@ -97,7 +97,7 @@ class HashTable {
   lookUp(key) {
     if (this.isNumber(key)) {
       let hashVal = this.hashFn(key);
-      if (this.arr[hashVal] === undefined) {
+      if (this.arr[hashVal] === null) {
         throw `Key is not present as the hash bucket is empty: ${key}`;
       }
       let hashBucket = this.arr[hashVal];
