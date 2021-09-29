@@ -51,16 +51,16 @@ class HashTable {
     throw `key is not a positive natural number ${key}`;
   }
   update(key, newVal) {
-      if(this.isNumber(key)){
-        let hashValue = this.hashFn(key);
-        if(this.isPresent(key)){
-            let oldVal = this.arr[hashValue];
-            this.arr[hashValue] = newVal;
-            return oldVal;
-        }
-        throw `key is not present: ${key}`;
+    if (this.isNumber(key)) {
+      let hashValue = this.hashFn(key);
+      if (this.isPresent(key)) {
+        let oldVal = this.arr[hashValue];
+        this.arr[hashValue] = newVal;
+        return oldVal;
       }
-      throw `key is not a positive natural number ${key}`; 
+      throw `key is not present: ${key}`;
+    }
+    throw `key is not a positive natural number ${key}`;
   }
   isPresent(key) {
     let hashValue = this.hashFn(key);
@@ -78,5 +78,5 @@ newStore.insertPair(303, "third");
 console.log(newStore.lookUp(303));
 newStore.deletePair(201);
 newStore.update(303, "3rd");
-console.log(newStore.lookUp(303))
+console.log(newStore.lookUp(303));
 console.log(newStore.arr);
