@@ -4,62 +4,43 @@ class HashTable {
   constructor(m, loadFactor = 0.75) {
     this.arr = [];
     this.size = m;
-    if (typeof loadFactor !== "number" || loadFactor <= 0 || loadFactor >= 1) {
+    if (typeof loadFactor !== "number") {
       this.load = 0.75;
     } else {
       this.load = loadFactor;
+    }
+    this.keys = 0;
+    this.addDefaultValues();
+  }
+  addDefaultValues() {
+    for (let i = 0; i < this.size; i++) {
+      this.arr[i] = null;
     }
   }
   hashFn(key) {
     return key % this.size;
   }
   exceedLoadFactor() {
-    let total = 0;
-    for (let i = 0; i < this.arr.length; i++) {
-      let bucket = this.arr[i];
-      if (bucket !== undefined) {
-        let node = bucket.head;
-        while (node !== undefined && node !== null) {
-          total++;
-          //console.log(total);
-          node = node.next;
-        }
-      }
-      //console.log(total);
-    }
-    if(total == 0){
-      return false;
-    }
-    let load = total / this.size;
-    return load >= this.load;
+    let loadFactor = this.keys / this.size;
+    return loadFactor > this.load;
   }
   rehash() {
-    //console.log("rehash");
     let newSize = this.size * 2;
-    this.size = newSize;
-    // let newTable = new HashTable(this.size * 2);
-    let newTable = [];
-    for (let i = 0; i < this.arr.length; i++) {
-      let bucket = this.arr[i];
-      if (bucket !== undefined) {
-        let node = bucket.head;
-        while (node !== null && node !== undefined) {
-          let currentKey = node.key;
-          let currentVal = node.value;
-          let currentHashVal = this.hashFn(currentKey);
-          let newNode = new hashT.Node(currentKey, currentVal);
-          if (newTable[currentHashVal] == undefined) {
-            newTable[currentHashVal] = new hashT.LinkedList(newNode);
-          } else {
-            newTable[currentHashVal].insertNode(newNode);
-          }
+    let newTable = new HashTable(newSize, this.load);
+    for (let i = 0; i < this.size; i++) {
+      let hashBucket = this.arr[i];
+      if (hashBucket !== null) {
+        let node = hashBucket;
+        while (node !== null) {
+          newTable.insert(node.key, node.value);
           node = node.next;
         }
       }
     }
-    this.arr = newTable;
+    this.size = newSize;
+    this.arr = newTable.arr;
   }
-  insertPair(key, value) {
+  insert(key, value) {
     if (this.isNumber(key)) {
       //check if the size exceeds load factor
       //if yes, call the method to resize
@@ -68,36 +49,35 @@ class HashTable {
       }
 
       let hashValue = this.hashFn(key);
-      let newNode = new hashT.Node(key, value);
-      if (this.arr[hashValue] === undefined) {
-        this.arr[hashValue] = new hashT.LinkedList(newNode);
+      if (this.arr[hashValue] === null) {
+        this.arr[hashValue] = new hashT.Node(key, value);
+        this.keys++;
         return value;
       }
       let hashBucket = this.arr[hashValue];
-      if (hashBucket.findNode(key) === false) {
-        hashBucket.insertNode(newNode);
+      if (hashBucket.find(key) === null) {
+        this.arr[hashValue] = hashBucket.insert(key, value);
+        this.keys++;
         return value;
       }
       throw `Key is already present in the hash bucket: ${key}`;
     }
     throw `Key is not a positive natural number: ${key}`;
   }
-  deletePair(key) {
+  delete(key) {
     if (this.isNumber(key)) {
       let hashVal = this.hashFn(key);
-      if (this.arr[hashVal] === undefined) {
-        throw `[DELETE] Key not present as the hash bucket is empty : ${key}`;
+      if (this.arr[hashVal] === null) {
+        throw `Key not present as the hash bucket is empty: ${key}`;
       }
       let hashBucket = this.arr[hashVal];
-      let targetNode = hashBucket.findNode(key);
-      if (targetNode === false) {
+      let targetNode = hashBucket.find(key);
+      if (targetNode === null) {
         throw `Key is not present in the hash bucket: ${key}`;
       }
       let deletedVal = targetNode.value;
-      let deletedHead =  hashBucket.deleteNode(targetNode);
-      if(deletedHead == null){
-        this.arr[hashVal] = undefined;
-      }
+      this.arr[hashVal] = hashBucket.delete(key);
+      this.keys--;
       return deletedVal;
     }
     throw `Key is not a positive natural number: {key}`;
@@ -105,12 +85,12 @@ class HashTable {
   update(key, newVal) {
     if (this.isNumber(key)) {
       let hashVal = this.hashFn(key);
-      if (this.arr[hashVal] === undefined) {
-        throw `[UPDATE] Key is not present as the hash bucket is empty: ${key}`;
+      if (this.arr[hashVal] === null) {
+        throw `Key is not present as the hash bucket is empty: ${key}`;
       }
       let hashBucket = this.arr[hashVal];
-      let targetNode = hashBucket.findNode(key);
-      if (targetNode === false) {
+      let targetNode = hashBucket.find(key);
+      if (targetNode === null) {
         throw `Key is not present in the hash bucket: ${key}`;
       }
       let oldVal = targetNode.value;
@@ -122,12 +102,12 @@ class HashTable {
   lookUp(key) {
     if (this.isNumber(key)) {
       let hashVal = this.hashFn(key);
-      if (this.arr[hashVal] === undefined) {
-        throw `[lookUp] Key is not present as the hash bucket is empty: ${key}`;
+      if (this.arr[hashVal] === null) {
+        throw `Key is not present as the hash bucket is empty: ${key}`;
       }
       let hashBucket = this.arr[hashVal];
-      let targetNode = hashBucket.findNode(key);
-      if (targetNode === false) {
+      let targetNode = hashBucket.find(key);
+      if (targetNode === null) {
         throw `Key is not present in the hash bucket: ${key}`;
       }
       return targetNode.value;
@@ -141,19 +121,19 @@ class HashTable {
 
 function testHashTable() {
   let newStore = new HashTable(10);
-  newStore.insertPair(1, "One");
+  newStore.insert(1, "One");
   try {
-    newStore.insertPair(1, "One");
+    newStore.insert(1, "One");
     console.log(false);
   } catch (e) {
     console.log(true);
   }
 
-  newStore.insertPair(202, "Two");
-  newStore.insertPair(303, "Three");
-  newStore.insertPair(404, "Four");
+  newStore.insert(202, "Two");
+  newStore.insert(303, "Three");
+  newStore.insert(404, "Four");
   console.log(newStore.lookUp(404) === "Four");
-  newStore.deletePair(303);
+  newStore.delete(303);
   try {
     console.log(newStore.lookUp(303));
     console.log(false);
@@ -161,18 +141,17 @@ function testHashTable() {
     console.log(true);
   }
   try {
-    
-    newStore.deletePair(303);
+    newStore.delete(303);
     console.log(false);
   } catch (e) {
     console.log(true);
   }
   newStore.update(404, "Four O Four");
   console.log(newStore.lookUp(404) === "Four O Four");
-  newStore.insertPair(504, "Five O Four");
+  newStore.insert(504, "Five O Four");
   console.log(newStore.lookUp(504) === "Five O Four");
-  newStore.insertPair(604, "Six O Four");
-  newStore.deletePair(504);
+  newStore.insert(604, "Six O Four");
+  newStore.delete(504);
   console.log(newStore.lookUp(604) === "Six O Four");
   console.log(newStore.lookUp(404) === "Four O Four");
   try {
@@ -186,21 +165,21 @@ function testHashTable() {
   let HASH = new HashTable(10);
   while (i < 20) {
     // try {
-      HASH.insertPair(counter, "STRING");
-      counter++;
+    HASH.insert(counter, "STRING");
+    counter++;
     // } catch (e) {
     //  console.log("Error in inserting a new pair: " + e);
     //  console.log(counter);
-     // break;
+    // break;
     // }
     i++;
   }
   console.log(HASH.arr);
   console.log(HASH.size);
-  HASH.insertPair(111, "111");
+  HASH.insert(111, "111");
   HASH.update(111, "!23");
-  HASH.insertPair(222, "2222");
-  HASH.deletePair(222);
+  HASH.insert(222, "2222");
+  HASH.delete(222);
   console.log(HASH.lookUp(111) === "!23");
   console.log(HASH.lookUp(222));
 }

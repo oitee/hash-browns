@@ -25,7 +25,7 @@ export class Node {
     if (this.next !== null) {
       return this.next.find(key);
     }
-    return false; //!To do: convert to null
+    return null;
   }
 }
 
@@ -52,7 +52,7 @@ class HashTable {
         return value;
       }
       let hashBucket = this.arr[hashValue];
-      if (hashBucket.find(key) === false) {
+      if (hashBucket.find(key) === null) {
         this.arr[hashValue] = hashBucket.insert(key, value);
         return value;
       }
@@ -68,7 +68,7 @@ class HashTable {
       }
       let hashBucket = this.arr[hashVal];
       let targetNode = hashBucket.find(key);
-      if (targetNode === false) {
+      if (targetNode === null) {
         throw `Key is not present in the hash bucket: ${key}`;
       }
       let deletedVal = targetNode.value;
@@ -85,7 +85,7 @@ class HashTable {
       }
       let hashBucket = this.arr[hashVal];
       let targetNode = hashBucket.find(key);
-      if (targetNode === false) {
+      if (targetNode === null) {
         throw `Key is not present in the hash bucket: ${key}`;
       }
       let oldVal = targetNode.value;
@@ -102,7 +102,7 @@ class HashTable {
       }
       let hashBucket = this.arr[hashVal];
       let targetNode = hashBucket.find(key);
-      if (targetNode === false) {
+      if (targetNode === null) {
         throw `Key is not present in the hash bucket: ${key}`;
       }
       return targetNode.value;

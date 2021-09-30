@@ -4,11 +4,17 @@ class HashTable {
   constructor(m) {
     this.arr = [];
     this.size = m;
+    this.addDefaultValue();
+  }
+  addDefaultValue(){
+    for(let i = 0; i < this.size; i++){
+      this.arr[i] = null;
+    }
   }
   hashFn(k) {
     return k % this.size;
   }
-  insertPair(key, value) {
+  insert(key, value) {
     // if (typeof key !== "number" || key < 0) {
     //   throw `key is not a positive natural number ${key}`;
     // }
@@ -22,25 +28,19 @@ class HashTable {
     }
     throw `key is not a positive natural number ${key}`;
   }
-  deletePair(key) {
-    // if (typeof key !== "number" || key < 0) {
-    //   throw `key is not a positive natural number ${key}`;
-    // }
+  delete(key) {
     if (this.isNumber(key)) {
       let hashValue = this.hashFn(key);
       if (!this.isPresent(key)) {
         thorw`key is not present: ${key}`;
       }
       let deletedValue = this.arr[hashValue];
-      this.arr[hashValue] = undefined;
+      this.arr[hashValue] = null;
       return deletedValue;
     }
     throw `key is not a positive natural number ${key}`;
   }
   lookUp(key) {
-    // if (typeof key !== "number" || key < 0) {
-    //   throw `key is not a positive natural number ${key}`;
-    // }
     if (this.isNumber(key)) {
       let hashValue = this.hashFn(key);
       if (this.isPresent(key)) {
@@ -64,7 +64,7 @@ class HashTable {
   }
   isPresent(key) {
     let hashValue = this.hashFn(key);
-    return this.arr[hashValue] != undefined;
+    return this.arr[hashValue] != null;
   }
   isNumber(key) {
     return typeof key == "number" && key > 0;
@@ -72,11 +72,11 @@ class HashTable {
 }
 
 let newStore = new HashTable(10);
-newStore.insertPair(100, "first");
-newStore.insertPair(201, "second");
-newStore.insertPair(303, "third");
+newStore.insert(100, "first");
+newStore.insert(201, "second");
+newStore.insert(303, "third");
 console.log(newStore.lookUp(303));
-newStore.deletePair(201);
+newStore.delete(201);
 newStore.update(303, "3rd");
 console.log(newStore.lookUp(303));
 console.log(newStore.arr);

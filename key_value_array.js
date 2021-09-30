@@ -4,7 +4,7 @@ class kvStore {
   constructor() {
     this.arr = [];
   }
-  insertPair(key, value) {
+  insert(key, value) {
     let unicodeKey = this.convertToUnicode(key);
     if (this.arr[unicodeKey] === undefined) {
       this.arr[unicodeKey] = value;
@@ -13,7 +13,7 @@ class kvStore {
     throw "key already exists";
   }
 
-  deletePair(key) {
+  delete(key) {
     let unicodeKey = this.convertToUnicode(key);
     if (this.arr[unicodeKey] !== undefined) {
       let value = this.arr[unicodeKey];
@@ -42,10 +42,11 @@ class kvStore {
   }
 
   convertToUnicode(key) {
-    if (typeof key == "number") {
+    if (typeof key == "number" && key >= 0) {
       return key;
     }
     let unicodeValue = 0;
+    key = key.toString();
     for (let i = 0; i < key.length; i++) {
       unicodeValue = unicodeValue + key.charCodeAt(i);
     }
@@ -53,18 +54,16 @@ class kvStore {
   }
 }
 
-let firstName = "Bella";
 let phoneBook = new kvStore();
 
-phoneBook.insertPair("Akbar", "+91 12345");
-phoneBook.insertPair("Amar", "+91 45678");
-phoneBook.insertPair("Antony", "+91 98765");
-phoneBook.insertPair("Abir", "+91 11111");
-phoneBook.insertPair("Hospitals", "+91 101");
-phoneBook.insertPair("Sammer", "+91 99999");
+phoneBook.insert("Akbar", "+91 12345");
+phoneBook.insert("Amar", "+91 45678");
+phoneBook.insert("Antony", "+91 98765");
+phoneBook.insert("Abir", "+91 11111");
+phoneBook.insert("Hospitals", "+91 101");
+phoneBook.insert("Sammer", "+91 99999");
 
-phoneBook.deletePair("Akbar");
-console.log(phoneBook.arr);
+phoneBook.delete("Akbar");
 console.log(phoneBook.lookUp("Abir") === "+91 11111");
 console.log(phoneBook.update("Abir", "+91 22222") === "+91 22222");
 console.log(phoneBook.lookUp("Abir") === "+91 22222");
