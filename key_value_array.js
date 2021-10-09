@@ -1,6 +1,6 @@
 //direct addressing
 
-class kvStore {
+class KVStore {
   constructor() {
     this.arr = [];
   }
@@ -54,7 +54,7 @@ class kvStore {
   }
 }
 
-let phoneBook = new kvStore();
+let phoneBook = new KVStore();
 
 phoneBook.insert("Akbar", "+91 12345");
 phoneBook.insert("Amar", "+91 45678");
